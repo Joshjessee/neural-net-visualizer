@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+:root {
+  --sidebar-width: 320px;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.react-flow__node {
+  cursor: pointer;
+}
+
+.react-flow__edge-path {
+  stroke-width: 2;
+}
