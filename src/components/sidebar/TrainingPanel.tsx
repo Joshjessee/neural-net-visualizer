@@ -27,7 +27,10 @@ export function TrainingPanel() {
     appendAccuracy,
     setTrainingConfig,
     resetTraining,
+    experienceMode,
   } = useStore();
+
+  const isBeginner = experienceMode === 'beginner';
 
   const modelRef = useRef<ReturnType<typeof buildTfModel>['model'] | null>(null);
   const trainingHandleRef = useRef<TrainingHandle | null>(null);
@@ -165,32 +168,40 @@ export function TrainingPanel() {
                 />
               </label>
 
-              <label className="flex items-center justify-between text-[11px]">
-                <span className="text-gray-600">Batch Size</span>
-                <input
-                  type="number"
-                  min={1}
-                  max={512}
-                  value={trainingConfig.batchSize}
-                  onChange={e => setTrainingConfig({ batchSize: Math.max(1, parseInt(e.target.value) || 32) })}
-                  disabled={isTraining}
-                  className="text-[11px] bg-gray-50 border border-gray-200 rounded px-1.5 py-0.5 w-16 text-right outline-none"
-                />
-              </label>
+              {!isBeginner && (
+                <label className="flex items-center justify-between text-[11px]">
+                  <span className="text-gray-600">Batch Size</span>
+                  <input
+                    type="number"
+                    min={1}
+                    max={512}
+                    value={trainingConfig.batchSize}
+                    onChange={e => setTrainingConfig({ batchSize: Math.max(1, parseInt(e.target.value) || 32) })}
+                    disabled={isTraining}
+                    className="text-[11px] bg-gray-50 border border-gray-200 rounded px-1.5 py-0.5 w-16 text-right outline-none"
+                  />
+                </label>
+              )}
 
-              <label className="flex items-center justify-between text-[11px]">
-                <span className="text-gray-600">Learning Rate</span>
-                <input
-                  type="number"
-                  min={0.00001}
-                  max={1}
-                  step={0.0001}
-                  value={trainingConfig.learningRate}
-                  onChange={e => setTrainingConfig({ learningRate: parseFloat(e.target.value) || 0.001 })}
-                  disabled={isTraining}
-                  className="text-[11px] bg-gray-50 border border-gray-200 rounded px-1.5 py-0.5 w-20 text-right outline-none"
-                />
-              </label>
+              {!isBeginner && (
+                <label className="flex items-center justify-between text-[11px]">
+                  <span className="text-gray-600">Learning Rate</span>
+                  <input
+                    type="number"
+                    min={0.00001}
+                    max={1}
+                    step={0.0001}
+                    value={trainingConfig.learningRate}
+                    onChange={e => setTrainingConfig({ learningRate: parseFloat(e.target.value) || 0.001 })}
+                    disabled={isTraining}
+                    className="text-[11px] bg-gray-50 border border-gray-200 rounded px-1.5 py-0.5 w-20 text-right outline-none"
+                  />
+                </label>
+              )}
+
+              {isBeginner && (
+                <p className="text-[10px] text-gray-400 italic">Using recommended settings for batch size and learning rate</p>
+              )}
             </div>
           )}
 

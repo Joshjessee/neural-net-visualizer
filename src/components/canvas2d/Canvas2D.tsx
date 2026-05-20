@@ -12,8 +12,10 @@ import '@xyflow/react/dist/style.css';
 import { useStore } from '../../store';
 import { networkToReactFlowNodes, networkToReactFlowEdges } from '../../utils/networkToReactFlow';
 import { propagateShapes } from '../../utils/shapePropagator';
+import { useFlowAnimation } from '../../hooks/useFlowAnimation';
 import { LayerNode } from './nodes/LayerNode';
 import { ShapeEdge } from './edges/ShapeEdge';
+import { DataFlowOverlay } from './DataFlowOverlay';
 
 const nodeTypes: NodeTypes = {
   layerNode: LayerNode,
@@ -24,22 +26,26 @@ const edgeTypes: EdgeTypes = {
 };
 
 export function Canvas2D() {
-  const { layers, connections, selectedLayerId } = useStore();
+  const { layers, connections, selectedLayerId, flowActiveLayerIndex, isFlowAnimating } = useStore();
+
+  useFlowAnimation();
 
   const shapes = useMemo(() => propagateShapes(layers), [layers]);
 
+  const activeIdx = isFlowAnimating ? flowActiveLayerIndex : undefined;
+
   const initialNodes = useMemo(
-    () => networkToReactFlowNodes(layers, selectedLayerId, shapes),
-    [layers, selectedLayerId, shapes]
+    () => networkToReactFlowNodes(layers, selectedLayerId, shapes, activeIdx),
+    [layers, selectedLayerId, shapes, activeIdx]
   );
 
   const initialEdges = useMemo(
-    () => networkToReactFlowEdges(connections, layers, shapes),
-    [connections, layers, shapes]
+    () => networkToReactFlowEdges(connections, layers, shapes, activeIdx),
+    [connections, layers, shapes, activeIdx]
   );
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full relative">
       <ReactFlow
         nodes={initialNodes}
         edges={initialEdges}
@@ -61,6 +67,7 @@ export function Canvas2D() {
           }}
           style={{ width: 120, height: 80 }}
         />
+        <DataFlowOverlay />
       </ReactFlow>
     </div>
   );

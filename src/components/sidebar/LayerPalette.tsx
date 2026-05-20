@@ -2,11 +2,15 @@ import { useStore } from '../../store';
 import type { LayerType } from '../../types/network';
 import { LAYER_DISPLAY_NAMES, MODEL_TYPE_LAYERS } from '../../constants/layerDefaults';
 import { LAYER_COLORS, LAYER_ICONS } from '../../constants/colors';
+import { LAYER_DESCRIPTIONS } from '../../constants/beginnerConfig';
 
 export function LayerPalette() {
-  const { addLayer, modelType, layers } = useStore();
+  const { addLayer, modelType, layers, experienceMode } = useStore();
+  const isBeginner = experienceMode === 'beginner';
 
-  const availableTypes = MODEL_TYPE_LAYERS[modelType];
+  const availableTypes = MODEL_TYPE_LAYERS[modelType].filter(
+    type => !isBeginner || type !== 'batchNorm'
+  );
 
   const handleAdd = (type: LayerType) => {
     addLayer(type);
@@ -24,6 +28,7 @@ export function LayerPalette() {
             <button
               key={type}
               onClick={() => handleAdd(type)}
+              title={isBeginner ? LAYER_DESCRIPTIONS[type] : undefined}
               className="flex items-center gap-1.5 px-2 py-1.5 rounded text-xs font-medium border transition-all hover:shadow-sm hover:scale-[1.02] active:scale-[0.98]"
               style={{
                 backgroundColor: colors.bg,
@@ -39,7 +44,7 @@ export function LayerPalette() {
       </div>
       {layers.length > 0 && (
         <p className="text-[10px] text-gray-400 mt-2 text-center">
-          Click a layer to add it to the network
+          {isBeginner ? 'Hover for descriptions, click to add' : 'Click a layer to add it to the network'}
         </p>
       )}
     </div>

@@ -8,19 +8,27 @@ import type { LayerNodeData } from '../../../utils/networkToReactFlow';
 type LayerNodeType = Node<LayerNodeData>;
 
 export function LayerNode({ data, id }: NodeProps<LayerNodeType>) {
-  const { layer, isSelected, index, outputShape } = data;
+  const { layer, isSelected, isFlowActive, isFlowPassed, index, outputShape } = data;
   const colors = LAYER_COLORS[layer.type];
   const selectLayer = useStore(s => s.selectLayer);
   const setActivePanel = useStore(s => s.setActivePanel);
+  const experienceMode = useStore(s => s.experienceMode);
 
-  const detailText = getDetailText(layer);
+  const detailText = experienceMode === 'beginner' ? getBeginnerDetailText(layer) : getDetailText(layer);
+
+  const ringClass = isFlowActive
+    ? 'ring-2 ring-orange-400 ring-offset-2 scale-105 animate-pulse'
+    : isSelected
+      ? 'ring-2 ring-blue-400 ring-offset-2 scale-105'
+      : 'hover:shadow-md';
 
   return (
     <div
-      className={`rounded-lg border-2 shadow-sm cursor-pointer transition-all min-w-[200px] ${
-        isSelected ? 'ring-2 ring-blue-400 ring-offset-2 scale-105' : 'hover:shadow-md'
-      }`}
-      style={{ backgroundColor: colors.bg, borderColor: colors.border }}
+      className={`rounded-lg border-2 shadow-sm cursor-pointer transition-all min-w-[200px] ${ringClass}`}
+      style={{
+        backgroundColor: colors.bg,
+        borderColor: isFlowActive ? '#f97316' : isFlowPassed ? '#fdba74' : colors.border,
+      }}
       onClick={() => { selectLayer(id); setActivePanel('config'); }}
     >
       {layer.type !== 'input' && (
@@ -61,6 +69,22 @@ export function LayerNode({ data, id }: NodeProps<LayerNodeType>) {
       )}
     </div>
   );
+}
+
+function getBeginnerDetailText(layer: LayerNodeData['layer']): string {
+  const parts: string[] = [];
+
+  if (layer.units) parts.push(`${layer.units} neurons`);
+  if (layer.filters) parts.push(`${layer.filters} filters`);
+  if (layer.rate !== undefined && layer.type === 'dropout') parts.push(`${Math.round(layer.rate * 100)}% drop`);
+  if (layer.inputShape) parts.push(`[${layer.inputShape.join(', ')}]`);
+  if (layer.numHeads) parts.push(`${layer.numHeads} heads`);
+  if (layer.embeddingDim) parts.push(`dim ${layer.embeddingDim}`);
+  if (layer.activation && layer.activation !== 'linear') {
+    parts.push(ACTIVATIONS[layer.activation]?.name || layer.activation);
+  }
+
+  return parts.join(' · ');
 }
 
 function getDetailText(layer: LayerNodeData['layer']): string {

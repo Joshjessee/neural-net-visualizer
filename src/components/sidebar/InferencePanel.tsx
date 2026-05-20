@@ -8,6 +8,7 @@ export function InferencePanel() {
     layers, setModelBuilt, setBuildError, setActivations,
     setRunningInference, setInferenceResult, isModelBuilt,
     buildError, isRunningInference, clearInference,
+    startFlowAnimation, isFlowAnimating, flowActivations,
   } = useStore();
 
   const [sampleInput, setSampleInput] = useState<number[] | null>(null);
@@ -67,6 +68,7 @@ export function InferencePanel() {
         storeActivations[key] = val;
       }
       setActivations(storeActivations);
+      startFlowAnimation(storeActivations, sampleInput, inputShape);
     } catch (e) {
       setBuildError((e as Error).message);
     } finally {
@@ -151,6 +153,22 @@ export function InferencePanel() {
               >
                 {isRunningInference ? 'Running...' : 'Run Inference'}
               </button>
+
+              {/* Replay Flow */}
+              {outputProbs && !isFlowAnimating && flowActivations && sampleInput && (
+                <button
+                  onClick={() => startFlowAnimation(flowActivations, sampleInput, inputShape)}
+                  className="w-full px-3 py-1.5 text-xs font-medium bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors"
+                >
+                  Replay Data Flow
+                </button>
+              )}
+
+              {isFlowAnimating && (
+                <p className="text-[10px] text-orange-600 text-center animate-pulse">
+                  Animating data flow...
+                </p>
+              )}
 
               {/* Output */}
               {outputProbs && (
