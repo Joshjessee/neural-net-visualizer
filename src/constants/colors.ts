@@ -1,19 +1,20 @@
 import type { LayerType } from '../types/network';
 
+// Dark-theme layer colors: deep tinted backgrounds, vibrant borders, bright text
 export const LAYER_COLORS: Record<LayerType, { bg: string; border: string; text: string }> = {
-  input:              { bg: '#dbeafe', border: '#3b82f6', text: '#1e40af' },
-  dense:              { bg: '#fef3c7', border: '#f59e0b', text: '#92400e' },
-  conv2d:             { bg: '#d1fae5', border: '#10b981', text: '#065f46' },
-  maxPool2d:          { bg: '#e0e7ff', border: '#6366f1', text: '#3730a3' },
-  flatten:            { bg: '#f3e8ff', border: '#a855f7', text: '#6b21a8' },
-  dropout:            { bg: '#fce7f3', border: '#ec4899', text: '#9d174d' },
-  batchNorm:          { bg: '#e0f2fe', border: '#0ea5e9', text: '#0c4a6e' },
-  embedding:          { bg: '#fef9c3', border: '#eab308', text: '#713f12' },
-  lstm:               { bg: '#ffedd5', border: '#f97316', text: '#9a3412' },
-  gru:                { bg: '#fed7aa', border: '#fb923c', text: '#9a3412' },
-  multiHeadAttention: { bg: '#fecaca', border: '#ef4444', text: '#991b1b' },
-  feedForward:        { bg: '#fee2e2', border: '#f87171', text: '#991b1b' },
-  output:             { bg: '#dcfce7', border: '#22c55e', text: '#166534' },
+  input:              { bg: '#0c1a2e', border: '#1d6fcc', text: '#58a6ff' },
+  dense:              { bg: '#1a1500', border: '#9e6a03', text: '#e3b341' },
+  conv2d:             { bg: '#0d1a11', border: '#1a7337', text: '#3fb950' },
+  maxPool2d:          { bg: '#160d33', border: '#6741d9', text: '#c084fc' },
+  flatten:            { bg: '#180c2d', border: '#7c3aed', text: '#a78bfa' },
+  dropout:            { bg: '#200c1e', border: '#be185d', text: '#f472b6' },
+  batchNorm:          { bg: '#0c1929', border: '#0369a1', text: '#38bdf8' },
+  embedding:          { bg: '#1a1200', border: '#b45309', text: '#fbbf24' },
+  lstm:               { bg: '#1c1008', border: '#c2410c', text: '#fb923c' },
+  gru:                { bg: '#1b0e09', border: '#9a3412', text: '#f97316' },
+  multiHeadAttention: { bg: '#1e0c0c', border: '#991b1b', text: '#f87171' },
+  feedForward:        { bg: '#1e0d0d', border: '#b91c1c', text: '#fca5a5' },
+  output:             { bg: '#0a1d11', border: '#15803d', text: '#4ade80' },
 };
 
 export const LAYER_ICONS: Record<LayerType, string> = {

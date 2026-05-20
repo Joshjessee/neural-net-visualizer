@@ -4,27 +4,28 @@ export function ViewToggle() {
   const { viewMode, setViewMode } = useStore();
 
   return (
-    <div className="flex bg-gray-100 rounded-lg p-0.5">
-      <button
-        className={`px-3 py-1 text-xs rounded-md transition-colors ${
-          viewMode === '2d'
-            ? 'bg-white text-gray-800 shadow-sm font-medium'
-            : 'text-gray-500 hover:text-gray-700'
-        }`}
-        onClick={() => setViewMode('2d')}
-      >
-        2D
-      </button>
-      <button
-        className={`px-3 py-1 text-xs rounded-md transition-colors ${
-          viewMode === '3d'
-            ? 'bg-white text-gray-800 shadow-sm font-medium'
-            : 'text-gray-500 hover:text-gray-700'
-        }`}
-        onClick={() => setViewMode('3d')}
-      >
-        3D
-      </button>
+    <div
+      className="flex rounded-lg p-0.5"
+      style={{ backgroundColor: '#21262d', border: '1px solid #30363d' }}
+    >
+      {(['2d', '3d'] as const).map(mode => {
+        const isActive = viewMode === mode;
+        return (
+          <button
+            key={mode}
+            onClick={() => setViewMode(mode)}
+            className="px-3 py-1 text-xs font-semibold rounded-md transition-all select-none"
+            style={{
+              backgroundColor: isActive ? '#161b22' : 'transparent',
+              color: isActive ? '#f0f6fc' : '#8b949e',
+              boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)' : 'none',
+              border: isActive ? '1px solid #30363d' : '1px solid transparent',
+            }}
+          >
+            {mode.toUpperCase()}
+          </button>
+        );
+      })}
     </div>
   );
 }

@@ -18,7 +18,7 @@ export function ActivationViz({ activation, width = 80, height = 50 }: Props) {
   const yMin = Math.min(...yValues);
   const yMax = Math.max(...yValues);
   const yRange = yMax - yMin || 1;
-  const pad = 4;
+  const pad = 5;
 
   const toSvg = (x: number, y: number) => ({
     sx: pad + ((x - xMin) / (xMax - xMin)) * (width - pad * 2),
@@ -36,12 +36,18 @@ export function ActivationViz({ activation, width = 80, height = 50 }: Props) {
   const zeroX = toSvg(0, 0).sx;
 
   return (
-    <svg width={width} height={height} className="bg-gray-50 rounded border border-gray-200">
-      {/* Axes */}
-      <line x1={pad} y1={zeroY} x2={width - pad} y2={zeroY} stroke="#ddd" strokeWidth={0.5} />
-      <line x1={zeroX} y1={pad} x2={zeroX} y2={height - pad} stroke="#ddd" strokeWidth={0.5} />
-      {/* Function curve */}
-      <path d={pathData} fill="none" stroke="#3b82f6" strokeWidth={1.5} />
+    <svg
+      width={width}
+      height={height}
+      className="rounded-lg shrink-0"
+      style={{ backgroundColor: '#0d1117', border: '1px solid #30363d' }}
+    >
+      {/* Zero axes */}
+      <line x1={pad} y1={zeroY} x2={width - pad} y2={zeroY} stroke="#21262d" strokeWidth={1} />
+      <line x1={zeroX} y1={pad} x2={zeroX} y2={height - pad} stroke="#21262d" strokeWidth={1} />
+      {/* Function curve with subtle glow */}
+      <path d={pathData} fill="none" stroke="#1d6fcc" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" opacity={0.4} />
+      <path d={pathData} fill="none" stroke="#58a6ff" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

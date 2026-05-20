@@ -8,8 +8,8 @@ export function NetworkSummary() {
 
   if (layers.length === 0) {
     return (
-      <div className="p-4 text-xs text-gray-400 text-center">
-        No layers yet. Add some from the palette above.
+      <div className="p-4 text-xs text-center" style={{ color: '#484f58' }}>
+        No layers yet
       </div>
     );
   }
@@ -24,16 +24,27 @@ export function NetworkSummary() {
 
   return (
     <div className="p-3">
+      {/* Header row */}
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-          Network Summary
+        <h3
+          className="text-[10px] font-semibold uppercase tracking-widest"
+          style={{ color: '#6e7681' }}
+        >
+          Network
         </h3>
-        <span className="text-[10px] text-gray-500">
+        <span
+          className="text-[10px] font-mono px-1.5 py-0.5 rounded"
+          style={{
+            color: '#8b949e',
+            backgroundColor: '#21262d',
+            border: '1px solid #30363d',
+          }}
+        >
           {formatParamCount(totalParams)} params
         </span>
       </div>
 
-      <div className="space-y-0.5">
+      <div className="space-y-1">
         {layers.map((layer, index) => {
           const colors = LAYER_COLORS[layer.type];
           const isSelected = layer.id === selectedLayerId;
@@ -41,19 +52,38 @@ export function NetworkSummary() {
             <button
               key={layer.id}
               onClick={() => { selectLayer(layer.id); setActivePanel('config'); }}
-              className={`w-full flex items-center gap-2 px-2 py-1 rounded text-xs transition-all ${
-                isSelected ? 'ring-2 ring-blue-400 ring-offset-1' : 'hover:ring-1 hover:ring-gray-300'
-              }`}
-              style={{ backgroundColor: colors.bg, borderLeft: `3px solid ${colors.border}` }}
+              className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-all"
+              style={{
+                backgroundColor: isSelected ? colors.bg : '#21262d',
+                border: `1px solid ${isSelected ? colors.border : '#30363d'}`,
+                boxShadow: isSelected ? `0 0 8px ${colors.border}44` : 'none',
+              }}
             >
-              <span className="text-gray-400 text-[10px] w-4">{index + 1}</span>
-              <span className="font-medium truncate flex-1 text-left" style={{ color: colors.text }}>
+              {/* Color pip */}
+              <span
+                className="w-1.5 h-1.5 rounded-full shrink-0"
+                style={{ backgroundColor: colors.border }}
+              />
+              {/* Index */}
+              <span className="text-[10px] font-mono w-4 text-right shrink-0" style={{ color: '#484f58' }}>
+                {index + 1}
+              </span>
+              {/* Name */}
+              <span
+                className="font-medium truncate flex-1 text-left"
+                style={{ color: isSelected ? colors.text : '#c9d1d9' }}
+              >
                 {layer.name}
               </span>
-              <span className="text-[10px] text-gray-400">
+              {/* Type */}
+              <span className="text-[10px] shrink-0" style={{ color: '#6e7681' }}>
                 {LAYER_DISPLAY_NAMES[layer.type]}
               </span>
-              <span className="text-[10px] text-gray-400 w-14 text-right">
+              {/* Params */}
+              <span
+                className="text-[10px] font-mono w-14 text-right shrink-0"
+                style={{ color: '#484f58' }}
+              >
                 {layerParams[index] > 0 ? formatParamCount(layerParams[index]) : '—'}
               </span>
             </button>

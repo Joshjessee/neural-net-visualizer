@@ -53,11 +53,9 @@ export function InferencePanel() {
 
   const handleInfer = useCallback(async () => {
     if (!modelRef.current || !sampleInput) return;
-
     setRunningInference(true);
     try {
       await new Promise(r => setTimeout(r, 50));
-
       const result = runInference(modelRef.current, sampleInput, inputShape);
       setInferenceResult(result.output);
       setOutputProbs(result.output);
@@ -76,49 +74,65 @@ export function InferencePanel() {
 
   return (
     <div className="p-3 space-y-3">
-      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+      <h3 className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#6e7681' }}>
         Live Inference
       </h3>
 
       {!hasInput && (
-        <p className="text-xs text-gray-400">Add an Input layer to enable inference.</p>
+        <p className="text-xs" style={{ color: '#484f58' }}>Add an Input layer to enable inference.</p>
       )}
 
       {hasInput && (
         <>
-          {/* Build Model */}
-          <div className="space-y-1">
+          {/* Build */}
+          <div className="space-y-1.5">
             <button
               onClick={handleBuild}
               disabled={layers.length < 2}
-              className="w-full px-3 py-1.5 text-xs font-medium bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full px-3 py-2 text-xs font-semibold rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{
+                background: 'linear-gradient(135deg, #1d6fcc 0%, #6741d9 100%)',
+                color: '#ffffff',
+                border: 'none',
+                boxShadow: '0 2px 8px rgba(29,111,204,0.3)',
+              }}
             >
-              {isModelBuilt ? 'Rebuild Model' : 'Build Model'}
+              {isModelBuilt ? '↺ Rebuild Model' : '⚡ Build Model'}
             </button>
-            {isModelBuilt && (
-              <p className="text-[10px] text-green-600">Model built successfully</p>
+            {isModelBuilt && !buildError && (
+              <p className="text-[10px] flex items-center gap-1" style={{ color: '#3fb950' }}>
+                <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ backgroundColor: '#3fb950' }} />
+                Model built successfully
+              </p>
             )}
             {buildError && (
-              <p className="text-[10px] text-red-500">Error: {buildError}</p>
+              <p className="text-[10px]" style={{ color: '#f85149' }}>✕ {buildError}</p>
             )}
           </div>
 
           {/* Generate Sample */}
           {isModelBuilt && (
-            <div className="space-y-2 border-t border-gray-100 pt-2">
+            <div className="space-y-2 pt-2" style={{ borderTop: '1px solid #21262d' }}>
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-gray-500 uppercase tracking-wider">Sample Input</span>
+                <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#6e7681' }}>
+                  Sample Input
+                </span>
                 <button
                   onClick={handleGenerate}
-                  className="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition-colors"
+                  className="text-[10px] px-2 py-1 rounded-md transition-colors"
+                  style={{
+                    backgroundColor: '#21262d',
+                    border: '1px solid #30363d',
+                    color: '#8b949e',
+                  }}
                 >
                   Generate
                 </button>
               </div>
 
               {isLargeInput && !sampleInput && (
-                <p className="text-[10px] text-amber-600">
-                  Large input ({inputSize.toLocaleString()} values). Sample generation may take a moment.
+                <p className="text-[10px]" style={{ color: '#e3b341' }}>
+                  ⚠ Large input ({inputSize.toLocaleString()} values). May take a moment.
                 </p>
               )}
 
@@ -126,13 +140,24 @@ export function InferencePanel() {
                 <div className="flex items-center gap-3">
                   <canvas
                     ref={canvasRef}
-                    className="border border-gray-200 rounded bg-black"
-                    style={{ width: 56, height: 56, imageRendering: 'pixelated' }}
+                    className="rounded-lg"
+                    style={{
+                      width: 56, height: 56,
+                      imageRendering: 'pixelated',
+                      border: '1px solid #30363d',
+                      backgroundColor: '#000',
+                    }}
                   />
-                  <div className="text-xs text-gray-500">
-                    <div>Shape: [{inputShape.join(', ')}]</div>
-                    {sampleLabel !== null && <div>Label: {sampleLabel}</div>}
-                    <div className="text-[9px] text-gray-400">
+                  <div className="text-xs space-y-0.5">
+                    <div style={{ color: '#8b949e' }}>
+                      Shape: <span className="font-mono" style={{ color: '#c9d1d9' }}>[{inputShape.join(', ')}]</span>
+                    </div>
+                    {sampleLabel !== null && (
+                      <div style={{ color: '#8b949e' }}>
+                        Label: <span className="font-semibold" style={{ color: '#58a6ff' }}>{sampleLabel}</span>
+                      </div>
+                    )}
+                    <div className="text-[9px] font-mono" style={{ color: '#484f58' }}>
                       {sampleInput.length.toLocaleString()} values
                     </div>
                   </div>
@@ -143,36 +168,63 @@ export function InferencePanel() {
 
           {/* Run Inference */}
           {isModelBuilt && sampleInput && (
-            <div className="space-y-2 border-t border-gray-100 pt-2">
+            <div className="space-y-2 pt-2" style={{ borderTop: '1px solid #21262d' }}>
               <button
                 onClick={handleInfer}
                 disabled={isRunningInference}
-                className="w-full px-3 py-1.5 text-xs font-medium bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50 transition-colors"
+                className="w-full px-3 py-2 text-xs font-semibold rounded-lg transition-all disabled:opacity-50"
+                style={{
+                  background: isRunningInference
+                    ? '#21262d'
+                    : 'linear-gradient(135deg, #1a7337 0%, #15803d 100%)',
+                  color: '#ffffff',
+                  border: isRunningInference ? '1px solid #30363d' : 'none',
+                  boxShadow: isRunningInference ? 'none' : '0 2px 8px rgba(26,115,55,0.3)',
+                }}
               >
-                {isRunningInference ? 'Running...' : 'Run Inference'}
+                {isRunningInference ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="w-2 h-2 rounded-full animate-pulse-dot inline-block" style={{ backgroundColor: '#58a6ff' }} />
+                    Running…
+                  </span>
+                ) : '▶ Run Inference'}
               </button>
 
               {/* Output */}
               {outputProbs && (
-                <div className="space-y-1">
-                  <span className="text-[10px] text-gray-500 uppercase tracking-wider">Output</span>
-                  <div className="space-y-0.5">
+                <div className="space-y-1.5">
+                  <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#6e7681' }}>
+                    Output
+                  </span>
+                  <div className="space-y-1">
                     {outputProbs.slice(0, 20).map((prob, i) => {
                       const maxProb = Math.max(...outputProbs.slice(0, 20));
                       const isMax = prob === maxProb;
-                      const width = Math.max(2, (Math.abs(prob) / (Math.abs(maxProb) || 1)) * 100);
+                      const barWidth = Math.max(2, (Math.abs(prob) / (Math.abs(maxProb) || 1)) * 100);
                       return (
-                        <div key={i} className="flex items-center gap-1">
-                          <span className={`text-[10px] w-4 text-right ${isMax ? 'font-bold text-blue-600' : 'text-gray-400'}`}>
+                        <div key={i} className="flex items-center gap-1.5">
+                          <span
+                            className="text-[10px] w-4 text-right font-mono shrink-0"
+                            style={{ color: isMax ? '#58a6ff' : '#484f58', fontWeight: isMax ? 700 : 400 }}
+                          >
                             {i}
                           </span>
-                          <div className="flex-1 h-3 bg-gray-100 rounded overflow-hidden">
+                          <div className="flex-1 h-2.5 rounded overflow-hidden" style={{ backgroundColor: '#21262d' }}>
                             <div
-                              className={`h-full rounded transition-all ${isMax ? 'bg-blue-500' : 'bg-gray-300'}`}
-                              style={{ width: `${width}%` }}
+                              className="h-full rounded transition-all"
+                              style={{
+                                width: `${barWidth}%`,
+                                background: isMax
+                                  ? 'linear-gradient(90deg, #1d6fcc, #6741d9)'
+                                  : '#30363d',
+                                boxShadow: isMax ? '0 0 6px rgba(88,166,255,0.3)' : 'none',
+                              }}
                             />
                           </div>
-                          <span className={`text-[9px] w-10 text-right ${isMax ? 'font-bold text-blue-600' : 'text-gray-400'}`}>
+                          <span
+                            className="text-[9px] w-10 text-right font-mono shrink-0"
+                            style={{ color: isMax ? '#58a6ff' : '#484f58', fontWeight: isMax ? 700 : 400 }}
+                          >
                             {prob >= 0 && prob <= 1
                               ? (prob * 100).toFixed(1) + '%'
                               : prob.toFixed(3)}
@@ -181,13 +233,21 @@ export function InferencePanel() {
                       );
                     })}
                   </div>
+
                   {outputProbs.length > 20 && (
-                    <p className="text-[9px] text-gray-400">Showing first 20 of {outputProbs.length} outputs</p>
+                    <p className="text-[9px]" style={{ color: '#484f58' }}>
+                      Showing first 20 of {outputProbs.length} outputs
+                    </p>
                   )}
+
                   {sampleLabel !== null && outputProbs.length <= 100 && (
-                    <p className="text-[10px] text-gray-500 mt-1">
-                      Predicted: <span className="font-bold text-blue-600">{outputProbs.indexOf(Math.max(...outputProbs))}</span>
-                      {' | '}Actual: <span className="font-bold">{sampleLabel}</span>
+                    <p className="text-[10px] pt-0.5" style={{ color: '#8b949e' }}>
+                      Predicted: <span className="font-bold" style={{ color: '#58a6ff' }}>
+                        {outputProbs.indexOf(Math.max(...outputProbs))}
+                      </span>
+                      {' · '}Actual: <span className="font-bold" style={{ color: '#e3b341' }}>
+                        {sampleLabel}
+                      </span>
                     </p>
                   )}
                 </div>

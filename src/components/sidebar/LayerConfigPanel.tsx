@@ -10,8 +10,11 @@ export function LayerConfigPanel() {
 
   if (!layer) {
     return (
-      <div className="p-4 text-xs text-gray-400 text-center">
-        Select a layer to configure
+      <div className="flex flex-col items-center justify-center h-40 gap-2">
+        <span style={{ fontSize: '24px' }}>◈</span>
+        <p className="text-xs text-center" style={{ color: '#484f58' }}>
+          Select a layer to configure it
+        </p>
       </div>
     );
   }
@@ -24,72 +27,76 @@ export function LayerConfigPanel() {
 
   return (
     <div className="p-3 space-y-3">
+      {/* Layer header */}
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-semibold text-gray-700">Configure Layer</h3>
+        <div
+          className="flex-1 flex items-center gap-2 px-2.5 py-2 rounded-lg"
+          style={{
+            backgroundColor: colors.bg,
+            border: `1.5px solid ${colors.border}`,
+          }}
+        >
+          <span className="font-semibold text-xs" style={{ color: colors.text }}>
+            {layer.type}
+          </span>
+        </div>
         <button
           onClick={() => { removeLayer(layer.id); selectLayer(null); }}
-          className="text-[10px] text-red-500 hover:text-red-700 px-1"
+          className="ml-2 px-2.5 py-1.5 text-xs rounded-lg transition-colors"
+          style={{
+            color: '#f85149',
+            backgroundColor: 'rgba(248,81,73,0.1)',
+            border: '1px solid rgba(248,81,73,0.2)',
+          }}
         >
           Remove
         </button>
       </div>
 
-      <div
-        className="p-2 rounded border text-xs"
-        style={{ backgroundColor: colors.bg, borderColor: colors.border }}
-      >
-        <span style={{ color: colors.text }} className="font-medium">{layer.type}</span>
-      </div>
-
       {/* Name */}
       <Field label="Name">
         <input
-          className="w-full text-xs bg-white border border-gray-200 rounded px-2 py-1 outline-none focus:border-blue-400"
+          className="w-full text-xs rounded-lg px-2.5 py-1.5 outline-none transition-colors"
+          style={{
+            backgroundColor: '#21262d',
+            border: '1px solid #30363d',
+            color: '#f0f6fc',
+          }}
           value={layer.name}
           onChange={e => update('name', e.target.value)}
+          onFocus={e => (e.target.style.borderColor = '#58a6ff')}
+          onBlur={e => (e.target.style.borderColor = '#30363d')}
         />
       </Field>
 
-      {/* Units (Dense, LSTM, GRU, FeedForward, Output) */}
+      {/* Units */}
       {(layer.type === 'dense' || layer.type === 'lstm' || layer.type === 'gru' || layer.type === 'feedForward' || layer.type === 'output') && (
         <Field label="Units">
-          <input
-            type="number"
-            min={1}
-            className="w-full text-xs bg-white border border-gray-200 rounded px-2 py-1 outline-none focus:border-blue-400"
+          <NumberInput
             value={layer.units || 0}
-            onChange={e => update('units', parseInt(e.target.value) || 1)}
+            min={1}
+            onChange={v => update('units', v)}
           />
         </Field>
       )}
 
-      {/* Filters (Conv2D) */}
+      {/* Filters / Kernel Size */}
       {layer.type === 'conv2d' && (
         <>
           <Field label="Filters">
-            <input
-              type="number"
-              min={1}
-              className="w-full text-xs bg-white border border-gray-200 rounded px-2 py-1 outline-none focus:border-blue-400"
-              value={layer.filters || 0}
-              onChange={e => update('filters', parseInt(e.target.value) || 1)}
-            />
+            <NumberInput value={layer.filters || 0} min={1} onChange={v => update('filters', v)} />
           </Field>
           <Field label="Kernel Size">
-            <div className="flex gap-1">
-              <input
-                type="number"
-                min={1}
-                className="w-1/2 text-xs bg-white border border-gray-200 rounded px-2 py-1 outline-none focus:border-blue-400"
+            <div className="flex gap-1.5">
+              <NumberInput
                 value={layer.kernelSize?.[0] || 3}
-                onChange={e => update('kernelSize', [parseInt(e.target.value) || 1, layer.kernelSize?.[1] || 3])}
-              />
-              <input
-                type="number"
                 min={1}
-                className="w-1/2 text-xs bg-white border border-gray-200 rounded px-2 py-1 outline-none focus:border-blue-400"
+                onChange={v => update('kernelSize', [v, layer.kernelSize?.[1] || 3])}
+              />
+              <NumberInput
                 value={layer.kernelSize?.[1] || 3}
-                onChange={e => update('kernelSize', [layer.kernelSize?.[0] || 3, parseInt(e.target.value) || 1])}
+                min={1}
+                onChange={v => update('kernelSize', [layer.kernelSize?.[0] || 3, v])}
               />
             </div>
           </Field>
@@ -99,20 +106,16 @@ export function LayerConfigPanel() {
       {/* Pool Size */}
       {layer.type === 'maxPool2d' && (
         <Field label="Pool Size">
-          <div className="flex gap-1">
-            <input
-              type="number"
-              min={1}
-              className="w-1/2 text-xs bg-white border border-gray-200 rounded px-2 py-1 outline-none focus:border-blue-400"
+          <div className="flex gap-1.5">
+            <NumberInput
               value={layer.poolSize?.[0] || 2}
-              onChange={e => update('poolSize', [parseInt(e.target.value) || 1, layer.poolSize?.[1] || 2])}
-            />
-            <input
-              type="number"
               min={1}
-              className="w-1/2 text-xs bg-white border border-gray-200 rounded px-2 py-1 outline-none focus:border-blue-400"
+              onChange={v => update('poolSize', [v, layer.poolSize?.[1] || 2])}
+            />
+            <NumberInput
               value={layer.poolSize?.[1] || 2}
-              onChange={e => update('poolSize', [layer.poolSize?.[0] || 2, parseInt(e.target.value) || 1])}
+              min={1}
+              onChange={v => update('poolSize', [layer.poolSize?.[0] || 2, v])}
             />
           </div>
         </Field>
@@ -126,9 +129,12 @@ export function LayerConfigPanel() {
             min={0}
             max={1}
             step={0.05}
-            className="w-full text-xs bg-white border border-gray-200 rounded px-2 py-1 outline-none focus:border-blue-400"
+            className="w-full text-xs rounded-lg px-2.5 py-1.5 outline-none"
+            style={{ backgroundColor: '#21262d', border: '1px solid #30363d', color: '#f0f6fc' }}
             value={layer.rate || 0.5}
             onChange={e => update('rate', parseFloat(e.target.value))}
+            onFocus={e => (e.target.style.borderColor = '#58a6ff')}
+            onBlur={e => (e.target.style.borderColor = '#30363d')}
           />
         </Field>
       )}
@@ -137,46 +143,22 @@ export function LayerConfigPanel() {
       {layer.type === 'embedding' && (
         <>
           <Field label="Vocab Size">
-            <input
-              type="number"
-              min={1}
-              className="w-full text-xs bg-white border border-gray-200 rounded px-2 py-1 outline-none focus:border-blue-400"
-              value={layer.vocabSize || 10000}
-              onChange={e => update('vocabSize', parseInt(e.target.value) || 1)}
-            />
+            <NumberInput value={layer.vocabSize || 10000} min={1} onChange={v => update('vocabSize', v)} />
           </Field>
           <Field label="Embedding Dim">
-            <input
-              type="number"
-              min={1}
-              className="w-full text-xs bg-white border border-gray-200 rounded px-2 py-1 outline-none focus:border-blue-400"
-              value={layer.embeddingDim || 128}
-              onChange={e => update('embeddingDim', parseInt(e.target.value) || 1)}
-            />
+            <NumberInput value={layer.embeddingDim || 128} min={1} onChange={v => update('embeddingDim', v)} />
           </Field>
         </>
       )}
 
-      {/* Attention heads */}
+      {/* Attention */}
       {layer.type === 'multiHeadAttention' && (
         <>
           <Field label="Num Heads">
-            <input
-              type="number"
-              min={1}
-              className="w-full text-xs bg-white border border-gray-200 rounded px-2 py-1 outline-none focus:border-blue-400"
-              value={layer.numHeads || 8}
-              onChange={e => update('numHeads', parseInt(e.target.value) || 1)}
-            />
+            <NumberInput value={layer.numHeads || 8} min={1} onChange={v => update('numHeads', v)} />
           </Field>
           <Field label="Key Dim">
-            <input
-              type="number"
-              min={1}
-              className="w-full text-xs bg-white border border-gray-200 rounded px-2 py-1 outline-none focus:border-blue-400"
-              value={layer.keyDim || 64}
-              onChange={e => update('keyDim', parseInt(e.target.value) || 1)}
-            />
+            <NumberInput value={layer.keyDim || 64} min={1} onChange={v => update('keyDim', v)} />
           </Field>
         </>
       )}
@@ -185,37 +167,56 @@ export function LayerConfigPanel() {
       {layer.type === 'input' && (
         <Field label="Input Shape">
           <input
-            className="w-full text-xs bg-white border border-gray-200 rounded px-2 py-1 outline-none focus:border-blue-400"
+            className="w-full text-xs rounded-lg px-2.5 py-1.5 outline-none font-mono"
+            style={{ backgroundColor: '#21262d', border: '1px solid #30363d', color: '#f0f6fc' }}
             value={layer.inputShape?.join(', ') || '784'}
             onChange={e => {
               const shape = e.target.value.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
               if (shape.length > 0) update('inputShape', shape);
             }}
+            onFocus={e => (e.target.style.borderColor = '#58a6ff')}
+            onBlur={e => (e.target.style.borderColor = '#30363d')}
           />
-          <p className="text-[10px] text-gray-400 mt-0.5">Comma-separated dimensions</p>
+          <p className="text-[10px] mt-0.5" style={{ color: '#484f58' }}>Comma-separated dimensions</p>
         </Field>
       )}
 
       {/* Return Sequences */}
       {(layer.type === 'lstm' || layer.type === 'gru') && (
         <Field label="Return Sequences">
-          <label className="flex items-center gap-2 text-xs">
-            <input
-              type="checkbox"
-              checked={layer.returnSequences || false}
-              onChange={e => update('returnSequences', e.target.checked)}
-            />
-            <span>Yes</span>
+          <label className="flex items-center gap-2.5 cursor-pointer select-none">
+            <div
+              className="relative w-8 h-4 rounded-full transition-colors"
+              style={{ backgroundColor: layer.returnSequences ? '#1d6fcc' : '#30363d' }}
+            >
+              <input
+                type="checkbox"
+                className="sr-only"
+                checked={layer.returnSequences || false}
+                onChange={e => update('returnSequences', e.target.checked)}
+              />
+              <div
+                className="absolute top-0.5 left-0.5 w-3 h-3 rounded-full transition-transform"
+                style={{
+                  backgroundColor: '#f0f6fc',
+                  transform: layer.returnSequences ? 'translateX(16px)' : 'translateX(0)',
+                }}
+              />
+            </div>
+            <span className="text-xs" style={{ color: layer.returnSequences ? '#58a6ff' : '#8b949e' }}>
+              {layer.returnSequences ? 'On' : 'Off'}
+            </span>
           </label>
         </Field>
       )}
 
       {/* Activation Function */}
       {layer.activation !== undefined && (
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <Field label="Activation">
             <select
-              className="w-full text-xs bg-white border border-gray-200 rounded px-2 py-1 outline-none focus:border-blue-400"
+              className="w-full text-xs rounded-lg px-2.5 py-1.5 outline-none cursor-pointer"
+              style={{ backgroundColor: '#21262d', border: '1px solid #30363d', color: '#f0f6fc' }}
               value={layer.activation}
               onChange={e => update('activation', e.target.value as ActivationFn)}
             >
@@ -224,9 +225,9 @@ export function LayerConfigPanel() {
               ))}
             </select>
           </Field>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5 pt-0.5">
             <ActivationViz activation={layer.activation} />
-            <p className="text-[10px] text-gray-500 flex-1">
+            <p className="text-[10px] flex-1 leading-relaxed" style={{ color: '#8b949e' }}>
               {ACTIVATIONS[layer.activation]?.description}
             </p>
           </div>
@@ -239,8 +240,28 @@ export function LayerConfigPanel() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">{label}</label>
-      <div className="mt-0.5">{children}</div>
+      <label
+        className="text-[10px] font-semibold uppercase tracking-widest block mb-1"
+        style={{ color: '#6e7681' }}
+      >
+        {label}
+      </label>
+      {children}
     </div>
+  );
+}
+
+function NumberInput({ value, min, onChange }: { value: number; min: number; onChange: (v: number) => void }) {
+  return (
+    <input
+      type="number"
+      min={min}
+      className="w-full text-xs rounded-lg px-2.5 py-1.5 outline-none"
+      style={{ backgroundColor: '#21262d', border: '1px solid #30363d', color: '#f0f6fc' }}
+      value={value}
+      onChange={e => onChange(parseInt(e.target.value) || min)}
+      onFocus={e => (e.target.style.borderColor = '#58a6ff')}
+      onBlur={e => (e.target.style.borderColor = '#30363d')}
+    />
   );
 }
