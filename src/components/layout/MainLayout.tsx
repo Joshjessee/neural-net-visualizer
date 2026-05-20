@@ -9,7 +9,7 @@ export function MainLayout() {
   return (
     <div className="flex flex-1 overflow-hidden">
       <Sidebar />
-      <main className="flex-1 relative overflow-hidden bg-gray-50">
+      <main className="flex-1 relative overflow-hidden" style={{ backgroundColor: '#0d1117' }}>
         {viewMode === '2d' ? <Canvas2D /> : <Canvas3D />}
       </main>
     </div>

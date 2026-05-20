@@ -15,10 +15,15 @@ export function PresetSelector() {
   };
 
   return (
-    <label className="flex items-center gap-2 text-xs text-gray-600">
-      Preset:
+    <label className="flex items-center gap-2 text-xs shrink-0" style={{ color: '#8b949e' }}>
+      <span>Preset</span>
       <select
-        className="text-xs bg-gray-50 border border-gray-200 rounded px-2 py-1 outline-none focus:border-blue-400"
+        className="text-xs rounded-md px-2 py-1 outline-none transition-colors cursor-pointer"
+        style={{
+          backgroundColor: '#21262d',
+          border: '1px solid #30363d',
+          color: '#f0f6fc',
+        }}
         value={presetId || ''}
         onChange={e => handleSelect(e.target.value)}
       >

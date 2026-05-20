@@ -53,7 +53,7 @@ export function networkToReactFlowEdges(
         target: conn.targetLayerId,
         type: 'skipEdge',
         animated: true,
-        style: { stroke: '#ef4444', strokeDasharray: '5,5', strokeWidth: 2 },
+        style: { stroke: '#f87171', strokeDasharray: '5,5', strokeWidth: 2 },
       };
     }
 
@@ -69,7 +69,7 @@ export function networkToReactFlowEdges(
       source: conn.sourceLayerId,
       target: conn.targetLayerId,
       type: shapeLabel ? 'shapeEdge' : 'default',
-      style: { stroke: '#94a3b8', strokeWidth: 2 },
+      style: { stroke: '#2d4a6b', strokeWidth: 2 },
       data: shapeLabel ? { shape: shapeLabel } : undefined,
     };
   });

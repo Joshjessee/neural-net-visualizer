@@ -8,38 +8,54 @@ export function LayerPalette() {
 
   const availableTypes = MODEL_TYPE_LAYERS[modelType];
 
-  const handleAdd = (type: LayerType) => {
-    addLayer(type);
-  };
-
   return (
     <div className="p-3">
-      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+      <h3
+        className="text-[10px] font-semibold uppercase tracking-widest mb-2.5"
+        style={{ color: '#6e7681' }}
+      >
         Add Layer
       </h3>
+
       <div className="grid grid-cols-2 gap-1.5">
         {availableTypes.map(type => {
           const colors = LAYER_COLORS[type];
           return (
             <button
               key={type}
-              onClick={() => handleAdd(type)}
-              className="flex items-center gap-1.5 px-2 py-1.5 rounded text-xs font-medium border transition-all hover:shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+              onClick={() => addLayer(type)}
+              className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-medium transition-all"
               style={{
                 backgroundColor: colors.bg,
-                borderColor: colors.border,
+                border: `1.5px solid ${colors.border}`,
                 color: colors.text,
+                boxShadow: `0 0 0 0 ${colors.border}`,
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 0 10px ${colors.border}55`;
+                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.03)';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = 'none';
+                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
+              }}
+              onMouseDown={e => {
+                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.97)';
+              }}
+              onMouseUp={e => {
+                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
               }}
             >
-              <span>{LAYER_ICONS[type]}</span>
-              <span>{LAYER_DISPLAY_NAMES[type]}</span>
+              <span className="text-sm leading-none">{LAYER_ICONS[type as LayerType]}</span>
+              <span className="truncate">{LAYER_DISPLAY_NAMES[type]}</span>
             </button>
           );
         })}
       </div>
-      {layers.length > 0 && (
-        <p className="text-[10px] text-gray-400 mt-2 text-center">
-          Click a layer to add it to the network
+
+      {layers.length === 0 && (
+        <p className="text-[10px] mt-3 text-center" style={{ color: '#484f58' }}>
+          Click a layer type to add it
         </p>
       )}
     </div>

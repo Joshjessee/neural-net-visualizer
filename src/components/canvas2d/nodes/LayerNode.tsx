@@ -17,47 +17,96 @@ export function LayerNode({ data, id }: NodeProps<LayerNodeType>) {
 
   return (
     <div
-      className={`rounded-lg border-2 shadow-sm cursor-pointer transition-all min-w-[200px] ${
-        isSelected ? 'ring-2 ring-blue-400 ring-offset-2 scale-105' : 'hover:shadow-md'
-      }`}
-      style={{ backgroundColor: colors.bg, borderColor: colors.border }}
+      className="flex rounded-xl cursor-pointer overflow-hidden min-w-[210px] relative"
+      style={{
+        backgroundColor: colors.bg,
+        border: `1.5px solid ${isSelected ? '#58a6ff' : colors.border}`,
+        boxShadow: isSelected
+          ? `0 0 0 3px rgba(88,166,255,0.2), 0 8px 24px rgba(0,0,0,0.5)`
+          : `0 2px 10px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)`,
+        transform: isSelected ? 'scale(1.04)' : 'scale(1)',
+        transition: 'all 0.15s cubic-bezier(0.4,0,0.2,1)',
+      }}
       onClick={() => { selectLayer(id); setActivePanel('config'); }}
     >
-      {layer.type !== 'input' && (
-        <Handle type="target" position={Position.Top} className="!bg-gray-400 !w-2 !h-2" />
-      )}
+      {/* Left color accent bar */}
+      <div
+        className="w-1 shrink-0"
+        style={{
+          background: `linear-gradient(180deg, ${colors.border} 0%, ${colors.border}88 100%)`,
+        }}
+      />
 
-      <div className="px-3 py-2">
+      {/* Content */}
+      <div className="flex-1 px-3 py-2.5">
+        {/* Top row: icon + name + index */}
         <div className="flex items-center gap-2">
-          <span className="text-sm">{LAYER_ICONS[layer.type]}</span>
+          <span className="text-sm shrink-0 leading-none">{LAYER_ICONS[layer.type]}</span>
           <div className="flex-1 min-w-0">
-            <div className="text-xs font-semibold truncate" style={{ color: colors.text }}>
+            <div className="text-xs font-semibold truncate leading-tight" style={{ color: colors.text }}>
               {layer.name}
             </div>
-            <div className="text-[10px] text-gray-500">
+            <div className="text-[10px] leading-tight mt-0.5" style={{ color: '#6e7681' }}>
               {LAYER_DISPLAY_NAMES[layer.type]}
             </div>
           </div>
-          <span className="text-[10px] text-gray-400 bg-white/60 rounded px-1 py-0.5">
+          <span
+            className="text-[10px] font-mono rounded px-1.5 py-0.5 shrink-0"
+            style={{
+              color: '#484f58',
+              backgroundColor: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.06)',
+            }}
+          >
             #{index + 1}
           </span>
         </div>
 
+        {/* Detail row */}
         {detailText && (
-          <div className="mt-1 text-[10px] text-gray-600 border-t border-black/5 pt-1">
+          <div
+            className="mt-1.5 text-[10px] pt-1.5 leading-snug"
+            style={{
+              color: '#8b949e',
+              borderTop: '1px solid rgba(255,255,255,0.05)',
+            }}
+          >
             {detailText}
           </div>
         )}
 
+        {/* Output shape */}
         {outputShape && (
-          <div className="mt-0.5 text-[9px] font-mono text-gray-400">
-            out: {outputShape}
+          <div className="mt-0.5 text-[9px] font-mono" style={{ color: '#30363d' }}>
+            → {outputShape}
           </div>
         )}
       </div>
 
+      {/* Handles */}
+      {layer.type !== 'input' && (
+        <Handle
+          type="target"
+          position={Position.Top}
+          style={{
+            backgroundColor: colors.border,
+            border: '2px solid #0d1117',
+            width: '10px',
+            height: '10px',
+          }}
+        />
+      )}
       {layer.type !== 'output' && (
-        <Handle type="source" position={Position.Bottom} className="!bg-gray-400 !w-2 !h-2" />
+        <Handle
+          type="source"
+          position={Position.Bottom}
+          style={{
+            backgroundColor: colors.border,
+            border: '2px solid #0d1117',
+            width: '10px',
+            height: '10px',
+          }}
+        />
       )}
     </div>
   );
@@ -66,17 +115,17 @@ export function LayerNode({ data, id }: NodeProps<LayerNodeType>) {
 function getDetailText(layer: LayerNodeData['layer']): string {
   const parts: string[] = [];
 
-  if (layer.units) parts.push(`units: ${layer.units}`);
-  if (layer.filters) parts.push(`filters: ${layer.filters}`);
-  if (layer.kernelSize) parts.push(`kernel: ${layer.kernelSize.join('×')}`);
-  if (layer.poolSize) parts.push(`pool: ${layer.poolSize.join('×')}`);
-  if (layer.rate !== undefined && layer.type === 'dropout') parts.push(`rate: ${layer.rate}`);
-  if (layer.inputShape) parts.push(`shape: [${layer.inputShape.join(', ')}]`);
-  if (layer.numHeads) parts.push(`heads: ${layer.numHeads}`);
-  if (layer.vocabSize) parts.push(`vocab: ${layer.vocabSize.toLocaleString()}`);
-  if (layer.embeddingDim) parts.push(`dim: ${layer.embeddingDim}`);
+  if (layer.units) parts.push(`${layer.units} units`);
+  if (layer.filters) parts.push(`${layer.filters} filters`);
+  if (layer.kernelSize) parts.push(`${layer.kernelSize.join('×')} kernel`);
+  if (layer.poolSize) parts.push(`${layer.poolSize.join('×')} pool`);
+  if (layer.rate !== undefined && layer.type === 'dropout') parts.push(`rate ${layer.rate}`);
+  if (layer.inputShape) parts.push(`[${layer.inputShape.join('×')}]`);
+  if (layer.numHeads) parts.push(`${layer.numHeads} heads`);
+  if (layer.vocabSize) parts.push(`vocab ${layer.vocabSize.toLocaleString()}`);
+  if (layer.embeddingDim) parts.push(`dim ${layer.embeddingDim}`);
   if (layer.activation && layer.activation !== 'linear') {
-    parts.push(`act: ${ACTIVATIONS[layer.activation]?.name || layer.activation}`);
+    parts.push(ACTIVATIONS[layer.activation]?.name || layer.activation);
   }
 
   return parts.join(' · ');
