@@ -2,11 +2,15 @@ import { useStore } from '../../store';
 import type { LayerType } from '../../types/network';
 import { LAYER_DISPLAY_NAMES, MODEL_TYPE_LAYERS } from '../../constants/layerDefaults';
 import { LAYER_COLORS, LAYER_ICONS } from '../../constants/colors';
+import { LAYER_DESCRIPTIONS } from '../../constants/beginnerConfig';
 
 export function LayerPalette() {
-  const { addLayer, modelType, layers } = useStore();
+  const { addLayer, modelType, layers, experienceMode } = useStore();
+  const isBeginner = experienceMode === 'beginner';
 
-  const availableTypes = MODEL_TYPE_LAYERS[modelType];
+  const availableTypes = MODEL_TYPE_LAYERS[modelType].filter(
+    type => !isBeginner || type !== 'batchNorm'
+  );
 
   return (
     <div className="p-3">
@@ -24,6 +28,7 @@ export function LayerPalette() {
             <button
               key={type}
               onClick={() => addLayer(type)}
+              title={isBeginner ? LAYER_DESCRIPTIONS[type] : undefined}
               className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-medium transition-all"
               style={{
                 backgroundColor: colors.bg,
@@ -56,6 +61,12 @@ export function LayerPalette() {
       {layers.length === 0 && (
         <p className="text-[10px] mt-3 text-center" style={{ color: '#484f58' }}>
           Click a layer type to add it
+        </p>
+      )}
+
+      {layers.length > 0 && isBeginner && (
+        <p className="text-[10px] mt-2 text-center" style={{ color: '#484f58' }}>
+          Hover for descriptions
         </p>
       )}
     </div>

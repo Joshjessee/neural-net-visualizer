@@ -8,23 +8,38 @@ import type { LayerNodeData } from '../../../utils/networkToReactFlow';
 type LayerNodeType = Node<LayerNodeData>;
 
 export function LayerNode({ data, id }: NodeProps<LayerNodeType>) {
-  const { layer, isSelected, index, outputShape } = data;
+  const { layer, isSelected, isFlowActive, isFlowPassed, index, outputShape } = data;
   const colors = LAYER_COLORS[layer.type];
   const selectLayer = useStore(s => s.selectLayer);
   const setActivePanel = useStore(s => s.setActivePanel);
+  const experienceMode = useStore(s => s.experienceMode);
 
-  const detailText = getDetailText(layer);
+  const detailText = experienceMode === 'beginner' ? getBeginnerDetailText(layer) : getDetailText(layer);
+
+  const borderColor = isFlowActive
+    ? '#f97316'
+    : isFlowPassed
+      ? '#fdba7480'
+      : isSelected
+        ? '#58a6ff'
+        : colors.border;
+
+  const boxShadow = isFlowActive
+    ? `0 0 0 2px rgba(249,115,22,0.3), 0 8px 24px rgba(0,0,0,0.5)`
+    : isSelected
+      ? `0 0 0 3px rgba(88,166,255,0.2), 0 8px 24px rgba(0,0,0,0.5)`
+      : `0 2px 10px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)`;
+
+  const transform = isFlowActive ? 'scale(1.05)' : isSelected ? 'scale(1.04)' : 'scale(1)';
 
   return (
     <div
-      className="flex rounded-xl cursor-pointer overflow-hidden min-w-[210px] relative"
+      className={`flex rounded-xl cursor-pointer overflow-hidden min-w-[210px] relative ${isFlowActive ? 'animate-pulse' : ''}`}
       style={{
         backgroundColor: colors.bg,
-        border: `1.5px solid ${isSelected ? '#58a6ff' : colors.border}`,
-        boxShadow: isSelected
-          ? `0 0 0 3px rgba(88,166,255,0.2), 0 8px 24px rgba(0,0,0,0.5)`
-          : `0 2px 10px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)`,
-        transform: isSelected ? 'scale(1.04)' : 'scale(1)',
+        border: `1.5px solid ${borderColor}`,
+        boxShadow,
+        transform,
         transition: 'all 0.15s cubic-bezier(0.4,0,0.2,1)',
       }}
       onClick={() => { selectLayer(id); setActivePanel('config'); }}
@@ -110,6 +125,22 @@ export function LayerNode({ data, id }: NodeProps<LayerNodeType>) {
       )}
     </div>
   );
+}
+
+function getBeginnerDetailText(layer: LayerNodeData['layer']): string {
+  const parts: string[] = [];
+
+  if (layer.units) parts.push(`${layer.units} neurons`);
+  if (layer.filters) parts.push(`${layer.filters} filters`);
+  if (layer.rate !== undefined && layer.type === 'dropout') parts.push(`${Math.round(layer.rate * 100)}% drop`);
+  if (layer.inputShape) parts.push(`[${layer.inputShape.join(', ')}]`);
+  if (layer.numHeads) parts.push(`${layer.numHeads} heads`);
+  if (layer.embeddingDim) parts.push(`dim ${layer.embeddingDim}`);
+  if (layer.activation && layer.activation !== 'linear') {
+    parts.push(ACTIVATIONS[layer.activation]?.name || layer.activation);
+  }
+
+  return parts.join(' · ');
 }
 
 function getDetailText(layer: LayerNodeData['layer']): string {

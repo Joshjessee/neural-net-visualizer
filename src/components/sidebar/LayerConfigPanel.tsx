@@ -3,10 +3,12 @@ import type { ActivationFn, LayerConfig } from '../../types/network';
 import { ACTIVATIONS } from '../../constants/activations';
 import { ActivationViz } from './ActivationViz';
 import { LAYER_COLORS } from '../../constants/colors';
+import { BEGINNER_VISIBLE_PARAMS, BEGINNER_LABELS, LAYER_DESCRIPTIONS } from '../../constants/beginnerConfig';
 
 export function LayerConfigPanel() {
-  const { layers, selectedLayerId, updateLayer, removeLayer, selectLayer } = useStore();
+  const { layers, selectedLayerId, updateLayer, removeLayer, selectLayer, experienceMode } = useStore();
   const layer = layers.find(l => l.id === selectedLayerId);
+  const isBeginner = experienceMode === 'beginner';
 
   if (!layer) {
     return (
@@ -24,6 +26,12 @@ export function LayerConfigPanel() {
   const update = (key: keyof LayerConfig, value: unknown) => {
     updateLayer(layer.id, { [key]: value });
   };
+
+  const showParam = (param: string) =>
+    !isBeginner || BEGINNER_VISIBLE_PARAMS[layer.type]?.includes(param);
+
+  const label = (param: string, fallback: string) =>
+    isBeginner ? (BEGINNER_LABELS[param] || fallback) : fallback;
 
   return (
     <div className="p-3 space-y-3">
@@ -53,58 +61,65 @@ export function LayerConfigPanel() {
         </button>
       </div>
 
-      {/* Name */}
-      <Field label="Name">
-        <input
-          className="w-full text-xs rounded-lg px-2.5 py-1.5 outline-none transition-colors"
-          style={{
-            backgroundColor: '#21262d',
-            border: '1px solid #30363d',
-            color: '#f0f6fc',
-          }}
-          value={layer.name}
-          onChange={e => update('name', e.target.value)}
-          onFocus={e => (e.target.style.borderColor = '#58a6ff')}
-          onBlur={e => (e.target.style.borderColor = '#30363d')}
-        />
-      </Field>
+      {/* Beginner description */}
+      {isBeginner && LAYER_DESCRIPTIONS[layer.type] && (
+        <p className="text-[10px] leading-relaxed" style={{ color: '#8b949e' }}>
+          {LAYER_DESCRIPTIONS[layer.type]}
+        </p>
+      )}
 
-      {/* Units */}
-      {(layer.type === 'dense' || layer.type === 'lstm' || layer.type === 'gru' || layer.type === 'feedForward' || layer.type === 'output') && (
-        <Field label="Units">
-          <NumberInput
-            value={layer.units || 0}
-            min={1}
-            onChange={v => update('units', v)}
+      {/* Name */}
+      {!isBeginner && (
+        <Field label="Name">
+          <input
+            className="w-full text-xs rounded-lg px-2.5 py-1.5 outline-none transition-colors"
+            style={{
+              backgroundColor: '#21262d',
+              border: '1px solid #30363d',
+              color: '#f0f6fc',
+            }}
+            value={layer.name}
+            onChange={e => update('name', e.target.value)}
+            onFocus={e => (e.target.style.borderColor = '#58a6ff')}
+            onBlur={e => (e.target.style.borderColor = '#30363d')}
           />
         </Field>
       )}
 
-      {/* Filters / Kernel Size */}
-      {layer.type === 'conv2d' && (
-        <>
-          <Field label="Filters">
-            <NumberInput value={layer.filters || 0} min={1} onChange={v => update('filters', v)} />
-          </Field>
-          <Field label="Kernel Size">
-            <div className="flex gap-1.5">
-              <NumberInput
-                value={layer.kernelSize?.[0] || 3}
-                min={1}
-                onChange={v => update('kernelSize', [v, layer.kernelSize?.[1] || 3])}
-              />
-              <NumberInput
-                value={layer.kernelSize?.[1] || 3}
-                min={1}
-                onChange={v => update('kernelSize', [layer.kernelSize?.[0] || 3, v])}
-              />
-            </div>
-          </Field>
-        </>
+      {/* Units */}
+      {(layer.type === 'dense' || layer.type === 'lstm' || layer.type === 'gru' || layer.type === 'feedForward' || layer.type === 'output') && showParam('units') && (
+        <Field label={label('units', 'Units')}>
+          <NumberInput value={layer.units || 0} min={1} onChange={v => update('units', v)} />
+        </Field>
+      )}
+
+      {/* Filters */}
+      {layer.type === 'conv2d' && showParam('filters') && (
+        <Field label={label('filters', 'Filters')}>
+          <NumberInput value={layer.filters || 0} min={1} onChange={v => update('filters', v)} />
+        </Field>
+      )}
+
+      {/* Kernel Size */}
+      {layer.type === 'conv2d' && showParam('kernelSize') && (
+        <Field label="Kernel Size">
+          <div className="flex gap-1.5">
+            <NumberInput
+              value={layer.kernelSize?.[0] || 3}
+              min={1}
+              onChange={v => update('kernelSize', [v, layer.kernelSize?.[1] || 3])}
+            />
+            <NumberInput
+              value={layer.kernelSize?.[1] || 3}
+              min={1}
+              onChange={v => update('kernelSize', [layer.kernelSize?.[0] || 3, v])}
+            />
+          </div>
+        </Field>
       )}
 
       {/* Pool Size */}
-      {layer.type === 'maxPool2d' && (
+      {layer.type === 'maxPool2d' && showParam('poolSize') && (
         <Field label="Pool Size">
           <div className="flex gap-1.5">
             <NumberInput
@@ -122,8 +137,8 @@ export function LayerConfigPanel() {
       )}
 
       {/* Dropout Rate */}
-      {layer.type === 'dropout' && (
-        <Field label="Rate">
+      {layer.type === 'dropout' && showParam('rate') && (
+        <Field label={label('rate', 'Rate')}>
           <input
             type="number"
             min={0}
@@ -140,32 +155,32 @@ export function LayerConfigPanel() {
       )}
 
       {/* Embedding */}
-      {layer.type === 'embedding' && (
-        <>
-          <Field label="Vocab Size">
-            <NumberInput value={layer.vocabSize || 10000} min={1} onChange={v => update('vocabSize', v)} />
-          </Field>
-          <Field label="Embedding Dim">
-            <NumberInput value={layer.embeddingDim || 128} min={1} onChange={v => update('embeddingDim', v)} />
-          </Field>
-        </>
+      {layer.type === 'embedding' && showParam('vocabSize') && (
+        <Field label="Vocab Size">
+          <NumberInput value={layer.vocabSize || 10000} min={1} onChange={v => update('vocabSize', v)} />
+        </Field>
+      )}
+      {layer.type === 'embedding' && showParam('embeddingDim') && (
+        <Field label={label('embeddingDim', 'Embedding Dim')}>
+          <NumberInput value={layer.embeddingDim || 128} min={1} onChange={v => update('embeddingDim', v)} />
+        </Field>
       )}
 
       {/* Attention */}
-      {layer.type === 'multiHeadAttention' && (
-        <>
-          <Field label="Num Heads">
-            <NumberInput value={layer.numHeads || 8} min={1} onChange={v => update('numHeads', v)} />
-          </Field>
-          <Field label="Key Dim">
-            <NumberInput value={layer.keyDim || 64} min={1} onChange={v => update('keyDim', v)} />
-          </Field>
-        </>
+      {layer.type === 'multiHeadAttention' && showParam('numHeads') && (
+        <Field label={label('numHeads', 'Num Heads')}>
+          <NumberInput value={layer.numHeads || 8} min={1} onChange={v => update('numHeads', v)} />
+        </Field>
+      )}
+      {layer.type === 'multiHeadAttention' && showParam('keyDim') && (
+        <Field label="Key Dim">
+          <NumberInput value={layer.keyDim || 64} min={1} onChange={v => update('keyDim', v)} />
+        </Field>
       )}
 
       {/* Input Shape */}
-      {layer.type === 'input' && (
-        <Field label="Input Shape">
+      {layer.type === 'input' && showParam('inputShape') && (
+        <Field label={label('inputShape', 'Input Shape')}>
           <input
             className="w-full text-xs rounded-lg px-2.5 py-1.5 outline-none font-mono"
             style={{ backgroundColor: '#21262d', border: '1px solid #30363d', color: '#f0f6fc' }}
@@ -182,7 +197,7 @@ export function LayerConfigPanel() {
       )}
 
       {/* Return Sequences */}
-      {(layer.type === 'lstm' || layer.type === 'gru') && (
+      {(layer.type === 'lstm' || layer.type === 'gru') && showParam('returnSequences') && (
         <Field label="Return Sequences">
           <label className="flex items-center gap-2.5 cursor-pointer select-none">
             <div
@@ -211,9 +226,9 @@ export function LayerConfigPanel() {
       )}
 
       {/* Activation Function */}
-      {layer.activation !== undefined && (
+      {layer.activation !== undefined && showParam('activation') && (
         <div className="space-y-1.5">
-          <Field label="Activation">
+          <Field label={label('activation', 'Activation')}>
             <select
               className="w-full text-xs rounded-lg px-2.5 py-1.5 outline-none cursor-pointer"
               style={{ backgroundColor: '#21262d', border: '1px solid #30363d', color: '#f0f6fc' }}

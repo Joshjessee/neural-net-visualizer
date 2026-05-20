@@ -5,14 +5,16 @@ import type { ViewSlice } from './slices/viewSlice';
 import type { InferenceSlice } from './slices/inferenceSlice';
 import type { UiSlice } from './slices/uiSlice';
 import type { TrainingSlice } from './slices/trainingSlice';
+import type { DataFlowSlice } from './slices/dataFlowSlice';
 import { createNetworkSlice } from './slices/networkSlice';
 import { createViewSlice } from './slices/viewSlice';
 import { createInferenceSlice } from './slices/inferenceSlice';
 import { createUiSlice } from './slices/uiSlice';
 import { createTrainingSlice } from './slices/trainingSlice';
+import { createDataFlowSlice } from './slices/dataFlowSlice';
 import { loadFromLocalStorage, debouncedSave } from '../utils/persistence';
 
-export type AppStore = NetworkSlice & ViewSlice & InferenceSlice & UiSlice & TrainingSlice;
+export type AppStore = NetworkSlice & ViewSlice & InferenceSlice & UiSlice & TrainingSlice & DataFlowSlice;
 
 // Partialize: only track network-related state for undo/redo
 type TrackedState = Pick<AppStore, 'layers' | 'connections' | 'modelType' | 'networkName' | 'presetId'>;
@@ -25,6 +27,7 @@ export const useStore = create<AppStore>()(
       ...createInferenceSlice(...a),
       ...createUiSlice(...a),
       ...createTrainingSlice(...a),
+      ...createDataFlowSlice(...a),
     }),
     {
       partialize: (state): TrackedState => ({
@@ -70,5 +73,10 @@ useStore.subscribe((state, prevState) => {
       networkName: state.networkName,
       presetId: state.presetId,
     });
+  }
+
+  // Persist experience mode preference
+  if (state.experienceMode !== prevState.experienceMode) {
+    localStorage.setItem('ml-visual-experience-mode', state.experienceMode);
   }
 });
