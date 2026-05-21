@@ -14,7 +14,6 @@ export const BEGINNER_VISIBLE_PARAMS: Record<LayerType, string[]> = {
   multiHeadAttention: ['numHeads'],
   feedForward: ['units', 'activation'],
   output: ['units', 'activation'],
-  activation: ['activation'],
 };
 
 export const BEGINNER_LABELS: Record<string, string> = {
@@ -41,7 +40,6 @@ export const LAYER_DESCRIPTIONS: Record<LayerType, string> = {
   multiHeadAttention: 'Lets the network focus on the most relevant parts of the input.',
   feedForward: 'A pair of dense layers used inside transformer blocks.',
   output: 'The final layer — produces the network\'s prediction or answer.',
-  activation: 'Applies a mathematical function to introduce non-linearity.',
 };
 
 export const BEGINNER_TRAINING_VISIBLE = ['epochs', 'datasetId'];
