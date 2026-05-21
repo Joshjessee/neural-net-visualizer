@@ -9,6 +9,8 @@ const CENTER_X = 400;
 export interface LayerNodeData {
   layer: LayerConfig;
   isSelected: boolean;
+  isFlowActive: boolean;
+  isFlowPassed: boolean;
   index: number;
   outputShape?: string;
   [key: string]: unknown;
@@ -18,6 +20,7 @@ export function networkToReactFlowNodes(
   layers: LayerConfig[],
   selectedLayerId: string | null,
   shapes?: Map<string, ShapeInfo>,
+  flowActiveLayerIndex?: number,
 ): Node<LayerNodeData>[] {
   return layers.map((layer, index) => {
     const shapeInfo = shapes?.get(layer.id);
@@ -28,6 +31,8 @@ export function networkToReactFlowNodes(
       data: {
         layer,
         isSelected: layer.id === selectedLayerId,
+        isFlowActive: flowActiveLayerIndex !== undefined && flowActiveLayerIndex >= 0 && index === flowActiveLayerIndex,
+        isFlowPassed: flowActiveLayerIndex !== undefined && flowActiveLayerIndex >= 0 && index < flowActiveLayerIndex,
         index,
         outputShape: shapeInfo?.outputShape
           ? formatShape(shapeInfo.outputShape)
@@ -44,6 +49,7 @@ export function networkToReactFlowEdges(
   connections: ConnectionConfig[],
   layers: LayerConfig[],
   shapes?: Map<string, ShapeInfo>,
+  flowActiveLayerIndex?: number,
 ): Edge[] {
   return connections.map(conn => {
     if (conn.isSkipConnection) {
@@ -64,12 +70,24 @@ export function networkToReactFlowEdges(
       ? formatShape(shapeInfo.inputShape)
       : undefined;
 
+    // Determine if this edge is active in the flow animation
+    const sourceIndex = layers.findIndex(l => l.id === conn.sourceLayerId);
+    const isFlowActive = flowActiveLayerIndex !== undefined &&
+      flowActiveLayerIndex >= 0 &&
+      sourceIndex === flowActiveLayerIndex - 1;
+
+    // Dark-theme edge colors: orange for active flow, dark blue for normal
+    const edgeStyle = isFlowActive
+      ? { stroke: '#f97316', strokeWidth: 3 }
+      : { stroke: '#2d4a6b', strokeWidth: 2 };
+
     return {
       id: conn.id,
       source: conn.sourceLayerId,
       target: conn.targetLayerId,
       type: shapeLabel ? 'shapeEdge' : 'default',
-      style: { stroke: '#2d4a6b', strokeWidth: 2 },
+      animated: isFlowActive,
+      style: edgeStyle,
       data: shapeLabel ? { shape: shapeLabel } : undefined,
     };
   });

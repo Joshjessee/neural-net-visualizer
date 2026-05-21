@@ -5,6 +5,7 @@ import { ViewToggle } from '../shared/ViewToggle';
 import { PresetSelector } from '../shared/PresetSelector';
 import { ImportExportButtons } from '../shared/ImportExportButtons';
 import { UndoRedoButtons } from '../shared/UndoRedoButtons';
+import { ExperienceModeToggle } from '../shared/ExperienceModeToggle';
 
 export function Header() {
   const { modelType, setModelType, networkName, setNetworkName } = useStore();
@@ -60,6 +61,10 @@ export function Header() {
       </label>
 
       <PresetSelector />
+
+      <div className="h-6 w-px bg-gray-200" />
+
+      <ExperienceModeToggle />
 
       <div className="flex-1" />
 

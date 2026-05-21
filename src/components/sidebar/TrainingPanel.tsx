@@ -6,13 +6,31 @@ import { LossChart } from '../shared/LossChart';
 
 export function TrainingPanel() {
   const {
-    layers, isModelBuilt, buildError,
-    setModelBuilt, setBuildError, setActivations, clearInference,
-    isTraining, trainingEpoch, trainingTotalEpochs,
-    lossHistory, accuracyHistory, currentLoss, currentAccuracy,
-    trainingConfig, setTraining, setTrainingProgress,
-    appendLoss, appendAccuracy, setTrainingConfig, resetTraining,
+    layers,
+    isModelBuilt,
+    buildError,
+    setModelBuilt,
+    setBuildError,
+    setActivations,
+    clearInference,
+    isTraining,
+    trainingEpoch,
+    trainingTotalEpochs,
+    lossHistory,
+    accuracyHistory,
+    currentLoss,
+    currentAccuracy,
+    trainingConfig,
+    setTraining,
+    setTrainingProgress,
+    appendLoss,
+    appendAccuracy,
+    setTrainingConfig,
+    resetTraining,
+    experienceMode,
   } = useStore();
+
+  const isBeginner = experienceMode === 'beginner';
 
   const modelRef = useRef<ReturnType<typeof buildTfModel>['model'] | null>(null);
   const trainingHandleRef = useRef<TrainingHandle | null>(null);
@@ -150,27 +168,37 @@ export function TrainingPanel() {
                 />
               </ConfigRow>
 
-              <ConfigRow label="Batch Size">
-                <input
-                  type="number" min={1} max={512}
-                  value={trainingConfig.batchSize}
-                  onChange={e => setTrainingConfig({ batchSize: Math.max(1, parseInt(e.target.value) || 32) })}
-                  disabled={isTraining}
-                  className="text-[11px] rounded px-1.5 py-1 w-16 text-right outline-none disabled:opacity-50"
-                  style={{ backgroundColor: '#21262d', border: '1px solid #30363d', color: '#f0f6fc' }}
-                />
-              </ConfigRow>
+              {!isBeginner && (
+                <ConfigRow label="Batch Size">
+                  <input
+                    type="number" min={1} max={512}
+                    value={trainingConfig.batchSize}
+                    onChange={e => setTrainingConfig({ batchSize: Math.max(1, parseInt(e.target.value) || 32) })}
+                    disabled={isTraining}
+                    className="text-[11px] rounded px-1.5 py-1 w-16 text-right outline-none disabled:opacity-50"
+                    style={{ backgroundColor: '#21262d', border: '1px solid #30363d', color: '#f0f6fc' }}
+                  />
+                </ConfigRow>
+              )}
 
-              <ConfigRow label="Learning Rate">
-                <input
-                  type="number" min={0.00001} max={1} step={0.0001}
-                  value={trainingConfig.learningRate}
-                  onChange={e => setTrainingConfig({ learningRate: parseFloat(e.target.value) || 0.001 })}
-                  disabled={isTraining}
-                  className="text-[11px] rounded px-1.5 py-1 w-20 text-right outline-none disabled:opacity-50"
-                  style={{ backgroundColor: '#21262d', border: '1px solid #30363d', color: '#f0f6fc' }}
-                />
-              </ConfigRow>
+              {!isBeginner && (
+                <ConfigRow label="Learning Rate">
+                  <input
+                    type="number" min={0.00001} max={1} step={0.0001}
+                    value={trainingConfig.learningRate}
+                    onChange={e => setTrainingConfig({ learningRate: parseFloat(e.target.value) || 0.001 })}
+                    disabled={isTraining}
+                    className="text-[11px] rounded px-1.5 py-1 w-20 text-right outline-none disabled:opacity-50"
+                    style={{ backgroundColor: '#21262d', border: '1px solid #30363d', color: '#f0f6fc' }}
+                  />
+                </ConfigRow>
+              )}
+
+              {isBeginner && (
+                <p className="text-[10px] italic" style={{ color: '#484f58' }}>
+                  Using recommended settings for batch size and learning rate
+                </p>
+              )}
             </div>
           )}
 
